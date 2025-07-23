@@ -32,7 +32,7 @@
             crossorigin="anonymous"></script>
     <script>
       $(function() {
-        var currentBoard = window.location.pathname.slice(3,-1);
+        var currentBoard = window.location.pathname.slice(3);
         var url = "/api/threads/"+currentBoard;
         $('#boardTitle').text('Welcome to '+window.location.pathname)
         $.ajax({
@@ -41,12 +41,7 @@
           success: function(data)
           {
             var boardThreads= [];
-            //
-            // THIS ARRAY SET UP IS FOR CODE READABILITIES AND TESTING!
-            // THIS IS NOT WHAT IT WOULD LOOK LIKE TO GO LIVE
-            //
             data.forEach(function(ele) {
-              console.log(ele);//can I use typeScript please?!
               var thread = ['<div class="thread">'];
               thread.push('<div class="main">')
               thread.push('<p class="id">id: '+ele._id+' ('+ele.created_on+')</p>');
@@ -77,8 +72,40 @@
           }
         });
         
-        $('#newThread').submit(function(){
-          $(this).attr('action', "/api/threads/" + currentBoard);
+        $('#newThread').submit(function(event){
+          event.preventDefault(); // Prevent the default form submission
+          var url = "/api/threads/" + currentBoard;
+          $.ajax({
+            type: "POST",
+            url: url,
+            data: $(this).serialize(),
+            success: function(data) {
+              alert("Thread added successfully");
+              // Optionally, clear the form or update the UI
+              $('#newThread')[0].reset();
+            },
+            error: function() {
+              alert("An error occurred while submitting the thread.");
+            }
+          });
+        });
+        
+        $('#boardDisplay').on('submit','#newReply', function(event){
+          event.preventDefault(); // Prevent the default form submission
+          var url = "/api/replies/" + currentBoard;
+          $.ajax({
+            type: "POST",
+            url: url,
+            data: $(this).serialize(),
+            success: function(data) {
+              alert("Reply added successfully");
+              // Optionally, clear the form or update the UI
+              $(this)[0].reset();
+            },
+            error: function() {
+              alert("An error occurred while submitting the reply.");
+            }
+          });
         });
         
         $('#boardDisplay').on('submit','#reportThread', function(e) {
